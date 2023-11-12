@@ -8,20 +8,29 @@ use std::io::{self, BufReader};
 
 fn main() {
     let db = read_db();
-    // println!("{:?}", db);
+    println!("{:?}", db);
 }
 
 fn read_db() -> Vec<Person> {
+    let mut entries: Vec<Person> = vec![];
     let f = File::open("./db.txt").unwrap();
-    let mut reader = BufReader::new(f);
-    let mut line = String::from("LINE");
-    reader.read_line(&mut line).unwrap();
-    println!("IS: {:?}", line);
-    reader.read_line(&mut line).unwrap();
-    println!("IS: {:?}", line);
+    let reader = BufReader::new(f);
 
-    let m = String::from("Chiki");
-    let p: Person = Person::new(m);
+    for line in reader.lines() {
+        if let Ok(line) = line {
+            let mut values = line.split("|");
+            let mut name = String::new();
+            let mut email = String::new();
 
-    vec![p]
+            if let Some(name_entry) = values.next() {
+                name = name_entry.to_string();
+            };
+            if let Some(email_entry) = values.next() {
+                email = email_entry.to_string();
+            }
+            let person_entry = Person::new(name, email);
+            entries.push(person_entry)
+        };
+    }
+    entries
 }
