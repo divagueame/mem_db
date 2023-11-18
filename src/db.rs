@@ -1,21 +1,40 @@
 use crate::person::Person;
 
+use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::{self, BufReader};
 
+pub trait Databaseable {
+    fn parse(&self) -> String;
+}
+
 #[derive(Debug)]
-pub struct Db {}
+pub struct Db {
+    filename: String,
+}
 
 impl Db {
     pub fn new(filename: &str) -> Self {
         println!("Filename {}", filename);
-        Self {}
+        Self {
+            filename: filename.to_string(),
+        }
+    }
+
+    pub fn add<T>(&mut self, item: T) -> Result<(), Box<dyn Error>>
+    where
+        T: Databaseable,
+    {
+        let mut f = File::options().append(true).open(&self.filename)?;
+
+        writeln!(&mut f, "{}", item.parse())?;
+        Ok(())
     }
 
     pub fn read(&self) -> Vec<Person> {
         let mut entries: Vec<Person> = vec![];
-        let f = File::open("./db.txt").unwrap();
+        let f = File::open(&self.filename).unwrap();
         let reader = BufReader::new(f);
 
         for line in reader.lines() {
