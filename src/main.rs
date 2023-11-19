@@ -1,4 +1,4 @@
-mod db;
+pub mod db;
 #[warn(unused_variables, unused_imports)]
 mod person;
 
@@ -6,8 +6,8 @@ use db::Db;
 use person::Person;
 
 fn main() {
-    let db_file = String::from("./db.txt");
-    let mut db = Db::new(&db_file);
+    let db_filepath = String::from("./db.txt");
+    let mut db = Db::new(&db_filepath);
     let db_entries = db.read();
 
     println!("Initial entries: {:?}", db_entries.len());
