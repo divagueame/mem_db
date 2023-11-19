@@ -5,6 +5,7 @@ use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::{self, BufReader};
+use std::str::FromStr;
 
 pub trait Databaseable {
     fn parse(&self) -> String;
@@ -13,6 +14,21 @@ pub trait Databaseable {
 pub struct Db {
     filepath: String,
     data: Vec<Box<dyn Databaseable>>,
+}
+
+#[derive(Debug)]
+pub enum DbAction {
+    AddItem,
+    Read,
+}
+
+impl FromStr for DbAction {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        println!("{}", s);
+        Ok(DbAction::Read)
+    }
 }
 
 impl Db {
