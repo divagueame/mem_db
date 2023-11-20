@@ -23,11 +23,14 @@ pub enum DbAction {
 }
 
 impl FromStr for DbAction {
-    type Err = ();
+    type Err = &'static str;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        println!("{}", s);
-        Ok(DbAction::Read)
+        match s.trim().to_lowercase().as_str() {
+            "read" => Ok(DbAction::Read),
+            "add" => Ok(DbAction::AddItem),
+            _ => Err("Can't parse this DbAction"),
+        }
     }
 }
 
