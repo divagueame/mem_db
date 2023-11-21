@@ -3,7 +3,8 @@ mod flow;
 #[warn(unused_variables, unused_imports)]
 mod person;
 
-use db::Db;
+use db::{Action, ActionType, Databaseable, Db};
+use person::Person;
 
 fn main() {
     let db_filepath = String::from("./db.txt");
@@ -11,7 +12,14 @@ fn main() {
 
     loop {
         flow::print_menu();
-        let user_action = flow::get_user_action_type();
-        user_action.execute(&mut db);
+        let user_action_type = flow::get_user_action_type();
+        match user_action_type {
+            ActionType::Read => println!("READ"),
+            ActionType::AddItem => {
+                let item = Person::build_from_user();
+                Action::AddItem(item).execute(&mut db);
+            }
+            ActionType::CloseConnection => println!("Bye!"),
+        }
     }
 }

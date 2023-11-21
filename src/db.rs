@@ -1,3 +1,4 @@
+use crate::flow;
 use crate::person::Person;
 use std::process;
 
@@ -8,39 +9,47 @@ use std::io::prelude::*;
 use std::io::{self, BufReader};
 use std::str::FromStr;
 
-pub trait Databaseable {
-    fn parse(&self) -> String;
-}
-
 pub struct Db {
     filepath: String,
-    data: Vec<Box<dyn Databaseable>>,
+    // data: Vec<Box<dyn Databaseable>>,
 }
 
 #[derive(Debug)]
 pub enum ActionType {
-    AddItem,
     Read,
+    AddItem,
     CloseConnection,
 }
 
 #[derive(Debug)]
 pub enum Action<T: Databaseable> {
-    ActionType(ActionType, Option<T>),
+    AddItem(T),
+    Read,
+    CloseConnection,
 }
 
-impl ActionType {
+// pub trait BuildFromUser {
+//     fn build_from_user() -> Self;
+// }
+
+pub trait Databaseable {
+    fn parse(&self) -> String;
+    fn build_from_user() -> Self;
+}
+
+impl<T: Databaseable> Action<T> {
     pub fn execute(&self, db: &mut Db) {
         match self {
-            ActionType::Read => {
+            Action::Read => {
                 println!("READING: {:?}", db.read());
                 ()
             }
-            ActionType::AddItem => {
-                println!("Execute Add items!");
-                ()
+            Action::AddItem(item) => {
+                println!("Execute Add items!, {:?}", item.parse());
+                let res = db.add(item).unwrap();
+                res
             }
-            ActionType::CloseConnection => {
+            Action::CloseConnection => {
                 println!("Execute exit!");
                 process::exit(1);
             }
@@ -66,16 +75,17 @@ impl Db {
         println!("filepath {}", filepath);
         Self {
             filepath: filepath.to_string(),
-            data: vec![],
+            // data: vec![],
         }
     }
 
-    pub fn add<T>(&mut self, item: T) -> Result<(), Box<dyn Error>>
+    pub fn add<T>(&mut self, item: &T) -> Result<(), Box<dyn Error>>
     where
         T: Databaseable,
     {
         let mut f = File::options().append(true).open(&self.filepath)?;
 
+        println!("WRITING!{:}", item.parse());
         writeln!(&mut f, "{}", item.parse())?;
         Ok(())
     }
@@ -134,7 +144,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
+    // #[ignore]
     fn add_item() {
         let mut db = setup_db();
         let pre_entries = db.read();
@@ -143,7 +153,7 @@ mod tests {
         let email = String::from("miki@miki.com");
         let new_item = Person::new(name, email);
 
-        let res = db.add(new_item);
+        let res = db.add(&new_item);
         assert!(matches!(res, Ok(())));
 
         let after_entries = db.read();

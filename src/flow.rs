@@ -1,4 +1,5 @@
-use crate::db::{Action, ActionType};
+use crate::db::{Action, ActionType, Databaseable};
+use crate::person::Person;
 use std::io;
 
 pub fn print_menu() {
@@ -11,8 +12,8 @@ pub fn print_menu() {
         ActionType::CloseConnection,
     ];
 
-    for action in action_types {
-        match action {
+    for action_type in action_types {
+        match action_type {
             ActionType::Read => println!("read => Read database"),
             ActionType::AddItem => println!("add => Add item to database"),
             ActionType::CloseConnection => println!("exit => Exit"),

@@ -1,3 +1,4 @@
+// use crate::db::BuildFromUser;
 use crate::db::Databaseable;
 use core::fmt;
 
@@ -22,5 +23,11 @@ impl fmt::Display for Person {
 impl Databaseable for Person {
     fn parse(&self) -> String {
         format!("{}|{}", self.name, self.email)
+    }
+
+    fn build_from_user() -> Self {
+        let name = String::from("Y");
+        let email = String::from("chiki@chiki.com");
+        Self::new(name, email)
     }
 }
