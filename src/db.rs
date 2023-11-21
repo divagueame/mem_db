@@ -1,4 +1,5 @@
 use crate::person::Person;
+use std::process;
 
 use std::error::Error;
 use std::fs;
@@ -17,19 +18,45 @@ pub struct Db {
 }
 
 #[derive(Debug)]
-pub enum DbAction {
+pub enum ActionType {
     AddItem,
     Read,
+    CloseConnection,
 }
 
-impl FromStr for DbAction {
+#[derive(Debug)]
+pub enum Action<T: Databaseable> {
+    ActionType(ActionType, Option<T>),
+}
+
+impl ActionType {
+    pub fn execute(&self, db: &mut Db) {
+        match self {
+            ActionType::Read => {
+                println!("READING: {:?}", db.read());
+                ()
+            }
+            ActionType::AddItem => {
+                println!("Execute Add items!");
+                ()
+            }
+            ActionType::CloseConnection => {
+                println!("Execute exit!");
+                process::exit(1);
+            }
+        }
+    }
+}
+
+impl FromStr for ActionType {
     type Err = &'static str;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.trim().to_lowercase().as_str() {
-            "read" => Ok(DbAction::Read),
-            "add" => Ok(DbAction::AddItem),
-            _ => Err("Can't parse this DbAction"),
+            "read" => Ok(ActionType::Read),
+            "add" => Ok(ActionType::AddItem),
+            "exit" => Ok(ActionType::CloseConnection),
+            _ => Err("Can't parse this Action"),
         }
     }
 }
@@ -107,7 +134,7 @@ mod tests {
     }
 
     #[test]
-    // #[ignore]
+    #[ignore]
     fn add_item() {
         let mut db = setup_db();
         let pre_entries = db.read();
