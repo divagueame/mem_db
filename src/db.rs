@@ -9,9 +9,25 @@ use std::io::prelude::*;
 use std::io::{self, BufReader};
 use std::str::FromStr;
 
+use enum_iterator::Sequence;
+
+#[derive(Debug, PartialEq, Sequence)]
+pub enum ItemType {
+    Person,
+}
+impl FromStr for ItemType {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.trim().to_lowercase().as_str() {
+            "person" => Ok(ItemType::Person),
+            _ => Err("Can't parse this Action"),
+        }
+    }
+}
+
 pub struct Db {
     filepath: String,
-    // data: Vec<Box<dyn Databaseable>>,
 }
 
 #[derive(Debug)]
@@ -27,10 +43,6 @@ pub enum Action<T: Databaseable> {
     Read,
     CloseConnection,
 }
-
-// pub trait BuildFromUser {
-//     fn build_from_user() -> Self;
-// }
 
 pub trait Databaseable {
     fn parse(&self) -> String;
@@ -75,7 +87,6 @@ impl Db {
         println!("filepath {}", filepath);
         Self {
             filepath: filepath.to_string(),
-            // data: vec![],
         }
     }
 

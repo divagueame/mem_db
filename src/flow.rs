@@ -1,6 +1,7 @@
-use crate::db::{Action, ActionType, Databaseable};
+use crate::db::{Action, ActionType, Databaseable, ItemType};
 use crate::person::Person;
-use std::io;
+use enum_iterator::{all, cardinality, first, last, next, previous, reverse_all, Sequence};
+use std::{io, process};
 
 pub fn print_menu() {
     println!("Options: ");
@@ -22,6 +23,7 @@ pub fn print_menu() {
 }
 
 pub fn get_user_action_type() -> ActionType {
+    println!("----");
     let mut user_input = String::from("");
     if let Err(err) = io::stdin().read_line(&mut user_input) {
         panic!("Wrong option: {}", err);
@@ -33,4 +35,18 @@ pub fn get_user_action_type() -> ActionType {
         Ok(ActionType::CloseConnection) => ActionType::CloseConnection,
         _ => ActionType::CloseConnection,
     }
+}
+
+pub fn get_user_item_type() -> ItemType {
+    println!("=== Type the type to add ===");
+    for v in all::<ItemType>() {
+        println!("{:?}", v);
+    }
+    println!("----");
+    let mut user_input = String::from("");
+    if let Err(err) = io::stdin().read_line(&mut user_input) {
+        panic!("Wrong option: {}", err);
+    };
+
+    user_input.parse::<ItemType>().unwrap()
 }

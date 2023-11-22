@@ -3,7 +3,7 @@ mod flow;
 #[warn(unused_variables, unused_imports)]
 mod person;
 
-use db::{Action, ActionType, Databaseable, Db};
+use db::{ActionType, Databaseable, Db};
 use person::Person;
 
 fn main() {
@@ -16,8 +16,11 @@ fn main() {
         match user_action_type {
             ActionType::Read => println!("READ"),
             ActionType::AddItem => {
-                let item = Person::build_from_user();
-                Action::AddItem(item).execute(&mut db);
+                let item_type = flow::get_user_item_type();
+                println!("USER CHOSE: {:?}", item_type);
+                // let item = Person::build_from_user();
+                // Action::AddItem(item).execute(&mut db);
+                // db.add(&item).unwrap();
             }
             ActionType::CloseConnection => println!("Bye!"),
         }
